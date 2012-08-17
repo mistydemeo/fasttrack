@@ -1,4 +1,4 @@
-require 'fasttrack/exempi/namespaces'
+require 'exempi/namespaces'
 
 module Fasttrack
   # Populates a hash with the namespace values from Exempi::Namespaces
