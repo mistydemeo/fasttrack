@@ -228,8 +228,8 @@ module Fasttrack
       enum_hash = enum.to_hash
       opt_hash = {}
       enum_hash.each do |k,v|
-        short_opt = k.to_s.split("_")[2..-1].join("_").downcase
-        opt_hash[short_opt] = true if (int & v) == v
+        short_opt = k.to_s.split("_")[2..-1].join("_").downcase.to_sym
+        opt_hash[short_opt] = ((int & v) == v)
       end
 
       opt_hash
