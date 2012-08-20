@@ -21,7 +21,7 @@ module Fasttrack
       end
 
       @iterator = nil
-      @iterator_namespace = nil
+      @iterator_opts = nil
     end
 
     # This ensures that the clone is created with a new XMP pointer
@@ -101,6 +101,138 @@ module Fasttrack
     def inspect
       ivars = instance_variables.map {|var| "#{var}=#{instance_variable_get var}"}
       "#<#{self.class}:#{object_id} #{ivars * ", "}>"
+    end
+
+    def each &block
+      return to_enum unless block_given?
+
+      iterate_for do |returned|
+        block.call(returned)
+      end
+    end
+
+    # Iterates over all properties, with the iteration rules guided
+    # by the specified options. Options should be specified in an array,
+    # with the following values accepted:
+    # :properties - Iterate the property tree of a TXMPMeta object.
+    # :aliases - Iterate the global namespace table.
+    # :just_children - Just do the immediate children of the root, default is subtree.
+    # :just_leaf_nodes - Just do the leaf nodes, default is all nodes in the subtree.
+    # :just_leaf_name - Return just the leaf part of the path, default is the full path.
+    # :include_aliases - Include aliases, default is just actual properties.
+    # :omit_qualifiers - Omit all qualifiers.
+    # @param [Array] An array of one or more options
+    # @return [Enumerator] if no block is given
+    def each_with_options opts, &block
+      return enum_for(:each_with_options, opts) unless block_given?
+
+      options = opts.map {|o| ("XMP_ITER_"+o.to_s.delete("_")).to_sym}
+      # filter out invalid options
+      options.keep_if {|o| Exempi::XMP_ITER_OPTIONS.find o}
+
+      iterate_for({:options => options}) do |returned|
+        block.call(returned)
+      end
+    end
+
+    # Iterates over all properties in a specified namespace.
+    # The namespace parameter can be the URI of the namespace to use,
+    # or a symbol representing the namespace prefix, e.g. :exif.
+    # The recognized namespace prefixes are based on the constants in
+    # Exempi::Namespaces, and are generated at runtime in
+    # Fasttrack::NAMESPACES.
+    # @param [String, Symbol] Namespace to iterate over
+    # @param [Array] A set of options to restrict the iteration; see #each_with_options for supported options
+    # @return [Enumerator] if no block is given
+    def each_in_namespace ns, opts=[], &block
+      return enum_for(:each_with_namespace, ns) unless block_given?
+
+      opts = {:namespace => ns}
+      iterate_for(opts) do |returned|
+        block.call(returned)
+      end
+    end
+
+    def rewind
+      @iterator = new_iterator
+    end
+
+    private
+
+    # Creates a new iterator based on the options specified in the
+    # @iterator_opts ivar, or an options hash if specified.
+    # The options hash can specify the following:
+    # :namespace => Limits the iteration to a specific namespace URI
+    # :options => Options for the iteration; must be an array composed of
+    # one or more symbols specified in the Exempi::XmpIterOptions enum.
+    # @param [Hash] A hash containing the options for the new iterator.
+    # @return [FFI::Pointer] A pointer to the new iterator
+    def new_iterator params=@iterator_opts
+      ns   = params[:namespace]
+      # property support is currently disabled
+      prop = nil
+      opts = params[:options]
+      Exempi.xmp_iterator_new @xmp_ptr, ns, prop, opts
+    end
+
+    # This method is the plumbing which is used by the various
+    # Enumerable mixin methods.
+    # @param (see #new_iterator)
+    # @yieldparam [String] uri the uri for the property
+    # @yieldparam [String] name the property's name
+    # @yieldparam [String] value the property's value
+    # @yieldparam [Hash] options additional metadata about the property
+    def iterate_for opts={}
+      # Select the namespace; lookup symbol if appropriate, otherwise use string or nil
+      if opts[:namespace].is_a? Symbol
+        ns = Fasttrack::NAMESPACES[opts[:namespace]]
+      else
+        ns = opts[:namespace]
+      end
+
+      # record iterator options; these are necessary to call subsequent
+      # iterator functions
+      @iterator_opts = {
+        :namespace     => ns,
+        # note that :property is currently unimplemented in Fasttrack
+        :property      => opts[:property],
+        :options       => opts[:options] || []
+      }
+
+      @iterator = new_iterator
+
+      returned_ns         = Exempi.xmp_string_new
+      returned_prop_path  = Exempi.xmp_string_new
+      returned_prop_value = Exempi.xmp_string_new
+      returned_prop_opts  = FFI::MemoryPointer.new :uint32
+
+      # keep iterating until xmp_iterator_next() returns false, which indicates
+      # it has finished traversing all the properties
+      while Exempi.xmp_iterator_next(@iterator, returned_ns, returned_prop_path, returned_prop_value, nil)
+        ary = [returned_ns, returned_prop_path, returned_prop_value].map do |xmp_str|
+          Exempi.xmp_string_cstr xmp_str
+        end
+
+        ary << parse_bitmask(returned_prop_opts.read_uint32,
+          Exempi::XMP_PROPS_BITS)
+
+        yield ary
+      end
+    end
+
+    # Converts a bitfield into a hash of named options via bitwise AND.
+    # @param [Int] the bitfield integer
+    # @param [FFI::Enum] the enum with which to compare
+    # @return [Hash] a hash which includes symbol representations of the included options
+    def parse_bitmask int, enum
+      enum_hash = enum.to_hash
+      opt_hash = {}
+      enum_hash.each do |k,v|
+        short_opt = k.to_s.split("_")[2..-1].join("_").downcase
+        opt_hash[short_opt] = true if (int & v) == v
+      end
+
+      opt_hash
     end
   end
 end
