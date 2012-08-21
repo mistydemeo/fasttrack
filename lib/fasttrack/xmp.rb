@@ -57,8 +57,34 @@ module Fasttrack
 
     alias_method :get_property, :get
 
+    # Modifies an existing XMP property or creates a new property with
+    # the specified value. For example:
+    # xmp.set :tiff, 'tiff:Make', 'Sony'
+    # @param [String, Symbol] The namespace to use. If a symbol is provided, Fasttrack will look up from a set of common recognized namespaces.
+    # @param [String] The property to set.
+    # @param [String] The value to set.
+    # @return [String] The new value
+    def set namespace, prop, value
+      if namespace.is_a? Symbol
+        namespace = Fasttrack::NAMESPACES[namespace]
+      end
+
+      success = Exempi.xmp_set_property @xmp_ptr, namespace, prop, value, nil
+      if success
+        value
+      else
+        error = Exempi.xmp_get_error
+        error_string = Exempi.exception_for(error).to_s.gsub "XMPErr_", ""
+        message = "An error has occurred: #{error_string}"
+        raise Exempi::ExempiError.new(error), message
+      end
+    end
+
+    alias_method :set_property, :set
+
     # Fetches an XMP property given a string containing the namespace
     # prefix and the property name, e.g. "tiff:Make"
+    # For instance, xmp['tiff:Make']
     # @param[String] The query
     # @return[String, nil] The property's value, or nil if not found
     def [] query
@@ -69,6 +95,22 @@ module Fasttrack
       ns_uri = Fasttrack::NAMESPACES[ns_prefix.downcase.to_sym]
 
       get_property ns_uri, property
+    end
+
+    # Sets an XMP property given a string containing the namespace
+    # prefix and the property name, e.g. "tiff:Make"
+    # For instance, xmp['tiff:Make'] = 'Sony'
+    # @param[String] The property
+    # @param[String] The value to set
+    # @return[String] The new value
+    def []= property, value
+      if property =~ /.+:.+/
+        ns_prefix, property = property.scan(/(.+):(.+)/).flatten
+      end
+
+      ns_uri = Fasttrack::NAMESPACES[ns_prefix.downcase.to_sym]
+
+      set_property ns_uri, property, value
     end
 
     # Deletes a given XMP property. If the property exists returns the deleted
