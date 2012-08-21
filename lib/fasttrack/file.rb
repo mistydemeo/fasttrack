@@ -60,6 +60,8 @@ module Fasttrack
     # closes and then reopens the file so it can continue to be used.
     # @return [true, false] true if successful
     def save!
+      raise "Unable to write XMP; file opened read-only" if @read_mode == "r"
+
       raise "file is closed" unless @open
       close!
       open @read_mode
