@@ -58,19 +58,23 @@ module Fasttrack
     # Save changes to a file.
     # Exempi only saves changes when a file is closed; this method
     # closes and then reopens the file so it can continue to be used.
+    # This always uses Exempi's "safe close", which writes into a
+    # temporary file and swap in case of unexpected termination.
     # @return [true, false] true if successful
     def save!
       raise "Unable to write XMP; file opened read-only" if @read_mode == "r"
 
       raise "file is closed" unless @open
+      # Make sure we let Exempi know there's new XMP to write
+      Exempi.xmp_files_put_xmp @file_ptr, @xmp.xmp_ptr
       close!
       open @read_mode
     end
 
-    # Closes the current file and saves any changes to disk. This always
-    # uses Exempi's "safe close", which writes into a temporary file and swap
-    # in case of unexpected termination.
-    # To save changes and keep the file open, use #save! instead.
+    # Closes the current file and frees its memory.
+    # While this will not save changes made to the current
+    # XMP object, it still has the potential to make changes to
+    # the file being closed.
     # @return [true, false] true if successful
     def close!
       raise "file is already closed" unless @open
