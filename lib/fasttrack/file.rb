@@ -17,6 +17,8 @@ module Fasttrack
     # @param [String] the path to the file on disk; must exist
     # @param [String] file mode; accepted values are "r" (read-only;
     #   default); "w" and "rw" (read-write)
+    # @raise [Fasttrack::FileFormatError] if the file can't have XMP
+    #   metadata
     def initialize path, mode="r"
       @path = Pathname.new(path).expand_path
       raise ArgumentError, "#{@path} does not exist" unless @path.exist?
@@ -39,6 +41,7 @@ module Fasttrack
     # @param [FFI::Pointer, Fasttrack::XMP] The XMP to check; can be a
     #   Fasttrack::XMP object or a pointer to a C XMP object
     # @return [true,false]
+    # @raise [TypeError] if an object without an XMP pointer is passed
     def can_put_xmp? xmp=@xmp
       if xmp.is_a? Fasttrack::XMP
         xmp = xmp.xmp_ptr
@@ -54,6 +57,8 @@ module Fasttrack
     # @param [Fasttrack::XMP] The XMP object to copy. Must be a
     #   Fasttrack::XMP object.
     # @return [Fasttrack::XMP] The copied object.
+    # @raise [Fasttrack::WriteError] if the file can't be written to
+    # @raise [TypeError] if the file being assigned isn't an XMP object
     def xmp= new_xmp
       if not new_xmp.is_a? Fasttrack::XMP
         raise TypeError, "#{new_xmp.class} is not a Fasttrack::XMP"
@@ -74,6 +79,7 @@ module Fasttrack
     # This always uses Exempi's "safe close", which writes into a
     # temporary file and swap in case of unexpected termination.
     # @return [true, false] true if successful
+    # @raise [Fasttrack::WriteError] if the file is read-only or closed
     def save!
       if @read_mode == "r"
         raise Fasttrack::WriteError, "file opened read-only"
@@ -91,6 +97,7 @@ module Fasttrack
     # XMP object, it still has the potential to make changes to
     # the file being closed.
     # @return [true, false] true if successful
+    # @raise [Fasttrack::WriteError] if the file is already closed
     def close!
       raise Fasttrack::WriteError, "file is already closed" unless @open
 
@@ -109,6 +116,8 @@ module Fasttrack
     # called by users of this class.
     #
     # @param [String] file mode
+    # @raise [Exempi::ExempiError] if Exempi reports an error while
+    #   attempting to open the file
     def open mode=nil
       case mode
       when 'r'
