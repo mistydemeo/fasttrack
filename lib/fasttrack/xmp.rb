@@ -126,6 +126,12 @@ module Fasttrack
 
     alias_method :delete_property, :delete
 
+    # Returns a list of namespace URIs in use in the specified XMP data.
+    # @return [Array<String>] An array of URI strings
+    def namespaces
+      map {|ns,_,_,_| ns}.uniq!
+    end
+
     # Serializes the XMP object to an XML string.
     # @return [String]
     def to_s
