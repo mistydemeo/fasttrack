@@ -9,6 +9,7 @@ module Fasttrack
   # Checks for an Exempi error, and raises the appropriate exception.
   # Should only be used when an error has been detected from the boolean
   # output of one of Exempi's functions.
+  # @raise [Exempi::ExempiError]
   def self.handle_exempi_failure
     error_code = Exempi.xmp_get_error
     message = Exempi.exception_for error_code

@@ -14,9 +14,9 @@ module Fasttrack
     # representation of a file on disk and its associated XMP metadata.
     # To create a new file on disk you should use Fasttrack::XMP#to_s
     # instead.
-    # @param [String] the path to the file on disk; must exist
-    # @param [String] file mode; accepted values are "r" (read-only;
-    #   default); "w" and "rw" (read-write)
+    # @param [String] path path to the file on disk; must exist
+    # @param [String] mode file mode; accepted values are "r"
+    #   (read-only; default), "w" and "rw" (read-write)
     # @raise [Fasttrack::FileFormatError] if the file can't have XMP
     #   metadata
     def initialize path, mode="r"
@@ -33,7 +33,7 @@ module Fasttrack
     # Checks to see whether XMP can be written to the current file.
     # If no XMP is specified, the file's associated XMP is used.
     # 
-    # @param [FFI::Pointer, Fasttrack::XMP] The XMP to check; can be a
+    # @param [FFI::Pointer, Fasttrack::XMP] xmp XMP to check; can be a
     #   Fasttrack::XMP object or a pointer to a C XMP object
     # @return [true,false]
     # @raise [TypeError] if an object without an XMP pointer is passed
@@ -49,9 +49,9 @@ module Fasttrack
 
     # Replaces the file's currently associated XMP object. The new XMP
     # will not be written to disk until #save! or #close! is called.
-    # @param [Fasttrack::XMP] The XMP object to copy. Must be a
+    # @param [Fasttrack::XMP] xmp XMP object to copy. Must be a
     #   Fasttrack::XMP object.
-    # @return [Fasttrack::XMP] The copied object.
+    # @return [Fasttrack::XMP] the copied object.
     # @raise [Fasttrack::WriteError] if the file can't be written to
     # @raise [TypeError] if the file being assigned isn't an XMP object
     def xmp= new_xmp
@@ -110,7 +110,7 @@ module Fasttrack
     # This method is considered plumbing and should not be directly
     # called by users of this class.
     #
-    # @param [String] file mode
+    # @param [String] mode file mode
     # @raise [Exempi::ExempiError] if Exempi reports an error while
     #   attempting to open the file
     def open mode=nil

@@ -1,7 +1,8 @@
 require 'exempi/namespaces'
 
 module Fasttrack
-  # Populates a hash with the namespace values from Exempi::Namespaces
+  # Populated at runtime with the namespace values from
+  # Exempi::Namespaces
   NAMESPACES = {}
   Exempi::Namespaces.constants.each do |const|
     name = const.to_s.match(/XMP_NS_(.+)/)[1].downcase.to_sym
