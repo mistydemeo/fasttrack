@@ -20,6 +20,14 @@ module Fasttrack
     def initialize path, mode="r"
       @path = Pathname.new(path).expand_path
       raise ArgumentError, "#{@path} does not exist" unless @path.exist?
+
+      # is this a valid file format?
+      format = Exempi.xmp_files_check_file_format @path.to_s
+      if Exempi::XMP_FILE_TYPE[format] == :XMP_FT_UNKNOWN
+        raise Fasttrack::FileFormatError,
+          "This is not a valid filetype for XMP"
+      end
+
       @file_ptr = Exempi.xmp_files_new
       @read_mode = mode
       open @read_mode
