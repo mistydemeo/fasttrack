@@ -31,6 +31,10 @@ module Fasttrack
     end
 
     # Return an object from the global namespace
+    # @example Gets the value of the 'tiff:Make' property
+    #   xmp.get :tiff, 'tiff:Make' #=> 'Sony'
+    #   # you can also leave off the namespace prefix
+    #   xmp.get :tiff, 'Make' #=> 'Sony'
     # @param[String, Symbol] The namespace to use. If a symbol is provided, Fasttrack will look up from a set of common recognized namespaces.
     # @param [String] The property to look up.
     # @return [String, nil] The value of the requested property, or nil if not found.
@@ -58,8 +62,9 @@ module Fasttrack
     alias_method :get_property, :get
 
     # Modifies an existing XMP property or creates a new property with
-    # the specified value. For example:
-    # xmp.set :tiff, 'tiff:Make', 'Sony'
+    # the specified value.
+    # @example Sets the 'tiff:Make' property to 'Sony'
+    #   xmp.set :tiff, 'tiff:Make', 'Sony' #=> 'Sony'
     # @param [String, Symbol] The namespace to use. If a symbol is provided, Fasttrack will look up from a set of common recognized namespaces.
     # @param [String] The property to set.
     # @param [String] The value to set.
@@ -84,7 +89,8 @@ module Fasttrack
 
     # Fetches an XMP property given a string containing the namespace
     # prefix and the property name, e.g. "tiff:Make"
-    # For instance, xmp['tiff:Make']
+    # @example Returns the value of 'tiff:Make'
+    #   xmp['tiff:Make'] #=> 'Sony'
     # @param[String] The query
     # @return[String, nil] The property's value, or nil if not found
     def [] query
@@ -99,7 +105,8 @@ module Fasttrack
 
     # Sets an XMP property given a string containing the namespace
     # prefix and the property name, e.g. "tiff:Make"
-    # For instance, xmp['tiff:Make'] = 'Sony'
+    # @example Sets the value of 'tiff:Make' to 'Sony'
+    #   xmp['tiff:Make'] = 'Sony' #=> 'Sony'
     # @param[String] The property
     # @param[String] The value to set
     # @return[String] The new value
