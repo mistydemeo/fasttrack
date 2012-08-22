@@ -35,9 +35,12 @@ module Fasttrack
     #   xmp.get :tiff, 'tiff:Make' #=> 'Sony'
     #   # you can also leave off the namespace prefix
     #   xmp.get :tiff, 'Make' #=> 'Sony'
-    # @param[String, Symbol] The namespace to use. If a symbol is provided, Fasttrack will look up from a set of common recognized namespaces.
+    # @param[String, Symbol] The namespace to use. If a symbol is
+    #   provided, Fasttrack will look up from a set of common
+    #   recognized namespaces.
     # @param [String] The property to look up.
-    # @return [String, nil] The value of the requested property, or nil if not found.
+    # @return [String, nil] The value of the requested property, or nil
+    #   if not found.
     def get namespace, prop
       if namespace.is_a? Symbol
         namespace = Fasttrack::NAMESPACES[namespace]
@@ -65,7 +68,9 @@ module Fasttrack
     # the specified value.
     # @example Sets the 'tiff:Make' property to 'Sony'
     #   xmp.set :tiff, 'tiff:Make', 'Sony' #=> 'Sony'
-    # @param [String, Symbol] The namespace to use. If a symbol is provided, Fasttrack will look up from a set of common recognized namespaces.
+    # @param [String, Symbol] The namespace to use. If a symbol is
+    #   provided, Fasttrack will look up from a set of common recognized
+    #   namespaces.
     # @param [String] The property to set.
     # @param [String] The value to set.
     # @return [String] The new value
@@ -120,10 +125,11 @@ module Fasttrack
       set_property ns_uri, property, value
     end
 
-    # Deletes a given XMP property. If the property exists returns the deleted
-    # property, otherwise returns nil
+    # Deletes a given XMP property. If the property exists returns the
+    # deleted property, otherwise returns nil
     # @param (see #get_property)
-    # @return [String, nil] The value of the deleted property, or nil if not found.
+    # @return [String, nil] The value of the deleted property, or nil if
+    #   not found.
     def delete namespace, prop
       deleted_prop = get_property namespace, prop
       Exempi.xmp_delete_property @xmp_ptr, namespace, prop
@@ -171,10 +177,14 @@ module Fasttrack
     # with the following values accepted:
     # :properties - Iterate the property tree of a TXMPMeta object.
     # :aliases - Iterate the global namespace table.
-    # :just_children - Just do the immediate children of the root, default is subtree.
-    # :just_leaf_nodes - Just do the leaf nodes, default is all nodes in the subtree.
-    # :just_leaf_name - Return just the leaf part of the path, default is the full path.
-    # :include_aliases - Include aliases, default is just actual properties.
+    # :just_children - Just do the immediate children of the root,
+    #   default is subtree.
+    # :just_leaf_nodes - Just do the leaf nodes, default is all nodes in
+    #   the subtree.
+    # :just_leaf_name - Return just the leaf part of the path, default 
+    #   is the full path.
+    # :include_aliases - Include aliases, default is just actual
+    #   properties.
     # :omit_qualifiers - Omit all qualifiers.
     # @param [Array<Symbol>] An array of one or more options
     # @return [Enumerator] if no block is given
@@ -197,7 +207,8 @@ module Fasttrack
     # Exempi::Namespaces, and are generated at runtime in
     # Fasttrack::NAMESPACES.
     # @param [String, Symbol] Namespace to iterate over
-    # @param [Array<Symbol>] A set of options to restrict the iteration; see #each_with_options for supported options
+    # @param [Array<Symbol>] A set of options to restrict the iteration;
+    #   see #each_with_options for supported options
     # @return [Enumerator] if no block is given
     def each_in_namespace ns, opts=[], &block
       return enum_for(:each_with_namespace, ns) unless block_given?
@@ -218,8 +229,9 @@ module Fasttrack
     # @iterator_opts ivar, or an options hash if specified.
     # The options hash can specify the following:
     # :namespace => Limits the iteration to a specific namespace URI
-    # :options => Options for the iteration; must be an array composed of
-    # one or more symbols specified in the Exempi::XmpIterOptions enum.
+    # :options => Options for the iteration; must be an array composed
+    #   of one or more symbols specified in the Exempi::XmpIterOptions 
+    #   enum.
     # @param [Hash] A hash containing the options for the new iterator.
     # @return [FFI::Pointer] A pointer to the new iterator
     def new_iterator params=@iterator_opts
@@ -238,7 +250,8 @@ module Fasttrack
     # @yieldparam [String] value the property's value
     # @yieldparam [Hash] options additional metadata about the property
     def iterate_for opts={}
-      # Select the namespace; lookup symbol if appropriate, otherwise use string or nil
+      # Select the namespace; lookup symbol if appropriate, otherwise
+      # use string or nil
       if opts[:namespace].is_a? Symbol
         ns = Fasttrack::NAMESPACES[opts[:namespace]]
       else
@@ -261,8 +274,8 @@ module Fasttrack
       returned_prop_value = Exempi.xmp_string_new
       returned_prop_opts  = FFI::MemoryPointer.new :uint32
 
-      # keep iterating until xmp_iterator_next() returns false, which indicates
-      # it has finished traversing all the properties
+      # keep iterating until xmp_iterator_next() returns false, which
+      # indicates it has finished traversing all the properties
       while Exempi.xmp_iterator_next(@iterator, returned_ns, returned_prop_path, returned_prop_value, nil)
         ary = [returned_ns, returned_prop_path, returned_prop_value].map do |xmp_str|
           Exempi.xmp_string_cstr xmp_str

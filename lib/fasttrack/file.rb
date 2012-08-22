@@ -9,11 +9,13 @@ module Fasttrack
   class File
     attr_reader :xmp, :path, :file_ptr
 
-    # Instantiates a new Fasttrack::File object, which is a representation of
-    # a file on disk and its associated XMP metadata.
-    # To create a new file on disk you should use Fasttrack::XMP#to_s instead.
+    # Instantiates a new Fasttrack::File object, which is a
+    # representation of a file on disk and its associated XMP metadata.
+    # To create a new file on disk you should use Fasttrack::XMP#to_s
+    # instead.
     # @param [String] the path to the file on disk; must exist
-    # @param [String] file mode; accepted values are "r" (read-only; default); "w" and "rw" (read-write)
+    # @param [String] file mode; accepted values are "r" (read-only;
+    #   default); "w" and "rw" (read-write)
     def initialize path, mode="r"
       @path = Pathname.new(path).expand_path
       raise ArgumentError, "#{@path} does not exist" unless @path.exist?
@@ -25,7 +27,8 @@ module Fasttrack
     # Checks to see whether XMP can be written to the current file.
     # If no XMP is specified, the file's associated XMP is used.
     # 
-    # @param [FFI::Pointer, Fasttrack::XMP] The XMP to check; can be a Fasttrack::XMP object or a pointer to a C XMP object
+    # @param [FFI::Pointer, Fasttrack::XMP] The XMP to check; can be a
+    #   Fasttrack::XMP object or a pointer to a C XMP object
     # @return [true,false]
     def can_put_xmp? xmp=@xmp
       if xmp.is_a? Fasttrack::XMP
@@ -37,9 +40,10 @@ module Fasttrack
       Exempi.xmp_files_can_put_xmp @file_ptr, xmp
     end
 
-    # Replaces the file's currently associated XMP object. The new XMP will not
-    # be written to disk until #save! or #close! is called.
-    # @param [Fasttrack::XMP] The XMP object to copy. Must be a Fasttrack::XMP object.
+    # Replaces the file's currently associated XMP object. The new XMP
+    # will not be written to disk until #save! or #close! is called.
+    # @param [Fasttrack::XMP] The XMP object to copy. Must be a
+    #   Fasttrack::XMP object.
     # @return [Fasttrack::XMP] The copied object.
     def xmp= new_xmp
       if not new_xmp.is_a? Fasttrack::XMP
@@ -90,8 +94,8 @@ module Fasttrack
 
     private
 
-    # This method is considered plumbing and should not be directly called
-    # by users of this class.
+    # This method is considered plumbing and should not be directly
+    # called by users of this class.
     #
     # @param [String] file mode
     def open mode=nil
