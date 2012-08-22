@@ -37,8 +37,8 @@ module Fasttrack
     #   xmp.get :tiff, 'Make' #=> 'Sony'
     #   # You can use the namespace URI string too
     #   xmp.get 'http://ns.adobe.com/tiff/1.0/', 'Make' #=> 'Sony'
-    # @param[String, Symbol] The namespace to use. If a symbol is
-    #   provided, Fasttrack will look up from a set of common
+    # @param[String, Symbol] The namespace URI to use. If a symbol is
+    #   provided, Fasttrack will look up the URI from a set of common
     #   recognized namespaces.
     # @param [String] The property to look up.
     # @return [String, nil] The value of the requested property, or nil
