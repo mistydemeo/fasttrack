@@ -76,6 +76,7 @@ module Fasttrack
     # @param [String] The property to set.
     # @param [String] The value to set.
     # @return [String] The new value
+    # @raise [Exempi::ExempiError] if Exempi reports that it failed
     def set namespace, prop, value
       if namespace.is_a? Symbol
         namespace = Fasttrack::NAMESPACES[namespace]
@@ -85,10 +86,7 @@ module Fasttrack
       if success
         value
       else
-        error = Exempi.xmp_get_error
-        error_string = Exempi.exception_for(error).to_s.gsub "XMPErr_", ""
-        message = "An error has occurred: #{error_string}"
-        raise Exempi::ExempiError.new(error), message
+        Fasttrack.handle_exempi_failure
       end
     end
 
