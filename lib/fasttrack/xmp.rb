@@ -169,7 +169,7 @@ module Fasttrack
     # :just_leaf_name - Return just the leaf part of the path, default is the full path.
     # :include_aliases - Include aliases, default is just actual properties.
     # :omit_qualifiers - Omit all qualifiers.
-    # @param [Array] An array of one or more options
+    # @param [Array<Symbol>] An array of one or more options
     # @return [Enumerator] if no block is given
     def each_with_options opts, &block
       return enum_for(:each_with_options, opts) unless block_given?
@@ -190,7 +190,7 @@ module Fasttrack
     # Exempi::Namespaces, and are generated at runtime in
     # Fasttrack::NAMESPACES.
     # @param [String, Symbol] Namespace to iterate over
-    # @param [Array] A set of options to restrict the iteration; see #each_with_options for supported options
+    # @param [Array<Symbol>] A set of options to restrict the iteration; see #each_with_options for supported options
     # @return [Enumerator] if no block is given
     def each_in_namespace ns, opts=[], &block
       return enum_for(:each_with_namespace, ns) unless block_given?
