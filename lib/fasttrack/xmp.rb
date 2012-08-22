@@ -35,6 +35,8 @@ module Fasttrack
     #   xmp.get :tiff, 'tiff:Make' #=> 'Sony'
     #   # you can also leave off the namespace prefix
     #   xmp.get :tiff, 'Make' #=> 'Sony'
+    #   # You can use the namespace URI string too
+    #   xmp.get 'http://ns.adobe.com/tiff/1.0/', 'Make' #=> 'Sony'
     # @param[String, Symbol] The namespace to use. If a symbol is
     #   provided, Fasttrack will look up from a set of common
     #   recognized namespaces.
