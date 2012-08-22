@@ -21,7 +21,9 @@ module Fasttrack
     #   metadata
     def initialize path, mode="r"
       @path = Pathname.new(path).expand_path
-      raise ArgumentError, "#{@path} does not exist" unless @path.exist?
+      if not @path.exist?
+        raise Fasttrack::FileNotFoundError, "#{@path} does not exist"
+      end
 
       @file_ptr = Exempi.xmp_files_new
       @read_mode = mode
