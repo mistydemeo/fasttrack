@@ -1,3 +1,4 @@
+require 'fasttrack/exceptions'
 require 'fasttrack/file'
 require 'fasttrack/xmp'
 require 'fasttrack/version'

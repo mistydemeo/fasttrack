@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*- 
+require 'fasttrack/exceptions'
 require 'fasttrack/xmp'
 
 require 'exempi'
@@ -52,7 +53,7 @@ module Fasttrack
       if not can_put_xmp? new_xmp
         message = "Unable to write XMP"
         message << "; file opened read-only" if @read_mode == "r"
-        raise message
+        raise Fasttrack::WriteError, message
       end
 
       @xmp = new_xmp.dup
@@ -66,9 +67,11 @@ module Fasttrack
     # temporary file and swap in case of unexpected termination.
     # @return [true, false] true if successful
     def save!
-      raise "Unable to write XMP; file opened read-only" if @read_mode == "r"
+      if @read_mode == "r"
+        raise Fasttrack::WriteError, "file opened read-only"
+      end
 
-      raise "file is closed" unless @open
+      raise Fasttrack::WriteError, "file is closed" unless @open
       # Make sure we let Exempi know there's new XMP to write
       Exempi.xmp_files_put_xmp @file_ptr, @xmp.xmp_ptr
       close!
@@ -81,7 +84,7 @@ module Fasttrack
     # the file being closed.
     # @return [true, false] true if successful
     def close!
-      raise "file is already closed" unless @open
+      raise Fasttrack::WriteError, "file is already closed" unless @open
 
       @open = !Exempi.xmp_files_close(@file_ptr, :XMP_CLOSE_SAFEUPDATE)
       if @open # did not successfully close
