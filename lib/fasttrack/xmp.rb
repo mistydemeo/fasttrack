@@ -164,6 +164,7 @@ module Fasttrack
       "#<#{self.class}:#{object_id} #{ivars * ", "}>"
     end
 
+    # @yieldparam (see #iterate_for)
     def each &block
       return to_enum unless block_given?
 
@@ -187,6 +188,7 @@ module Fasttrack
     # @option opts :include_aliases Include aliases, default is just
     #   actual properties.
     # @option opts :omit_qualifiers Omit all qualifiers.
+    # @yieldparam (see #iterate_for)
     # @return [Enumerator] if no block is given
     def each_with_options opts, &block
       return enum_for(:each_with_options, opts) unless block_given?
@@ -209,6 +211,7 @@ module Fasttrack
     # @param [String, Symbol] ns namespace to iterate over
     # @param [Array<Symbol>] opts a set of options to restrict the
     #   iteration; see #each_with_options for supported options
+    # @yieldparam (see #iterate_for)
     # @return [Enumerator] if no block is given
     def each_in_namespace ns, opts=[], &block
       return enum_for(:each_with_namespace, ns) unless block_given?
