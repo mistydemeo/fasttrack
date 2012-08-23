@@ -22,6 +22,13 @@ module Fasttrack
 
       @iterator = nil
       @iterator_opts = nil
+
+      # capture the namespaces that exist at load time, with
+      # a count of the number of times each uri is present
+      ns_ary = map {|ns,_,_,_| ns}
+      @namespaces = ns_ary.uniq.each_with_object(Hash.new(0)) do |ns, hsh|
+        hsh[ns] = ns_ary.count(ns) - 1 # one empty item returned per ns
+      end
     end
 
     # This ensures that the clone is created with a new XMP pointer.
@@ -84,6 +91,7 @@ module Fasttrack
 
       success = Exempi.xmp_set_property @xmp_ptr, namespace, prop, value, nil
       if success
+        @namespaces[namespace] += 1
         value
       else
         Fasttrack.handle_exempi_failure
@@ -133,6 +141,7 @@ module Fasttrack
     def delete namespace, prop
       deleted_prop = get_property namespace, prop
       Exempi.xmp_delete_property @xmp_ptr, namespace, prop
+      @namespaces[namespace] -= 1
 
       deleted_prop
     end
@@ -142,7 +151,7 @@ module Fasttrack
     # Returns a list of namespace URIs in use in the specified XMP data.
     # @return [Array<String>] an array of URI strings
     def namespaces
-      map {|ns,_,_,_| ns}.uniq!
+      @namespaces.keys
     end
 
     # Serializes the XMP object to an XML string.
