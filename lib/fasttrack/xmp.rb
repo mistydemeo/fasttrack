@@ -52,7 +52,7 @@ module Fasttrack
     #   if not found.
     def get namespace, prop
       if namespace.is_a? Symbol
-        namespace = Fasttrack::NAMESPACES[namespace]
+        namespace = namespace_for namespace
       end
 
       prop_str = Exempi.xmp_string_new
@@ -86,7 +86,7 @@ module Fasttrack
     # @raise [Exempi::ExempiError] if Exempi reports that it failed
     def set namespace, prop, value
       if namespace.is_a? Symbol
-        namespace = Fasttrack::NAMESPACES[namespace]
+        namespace = namespace_for namespace
       end
 
       success = Exempi.xmp_set_property @xmp_ptr, namespace, prop, value, nil
@@ -111,7 +111,7 @@ module Fasttrack
         ns_prefix, property = query.scan(/(.+):(.+)/).flatten
       end
 
-      ns_uri = Fasttrack::NAMESPACES[ns_prefix.downcase.to_sym]
+      ns_uri = namespace_for ns_prefix.downcase.to_sym
 
       get_property ns_uri, property
     end
@@ -128,7 +128,7 @@ module Fasttrack
         ns_prefix, property = property.scan(/(.+):(.+)/).flatten
       end
 
-      ns_uri = Fasttrack::NAMESPACES[ns_prefix.downcase.to_sym]
+      ns_uri = namespace_for ns_prefix.downcase.to_sym
 
       set_property ns_uri, property, value
     end
@@ -139,6 +139,10 @@ module Fasttrack
     # @return [String, nil] the value of the deleted property, or nil if
     #   not found.
     def delete namespace, prop
+      if namespace.is_a? Symbol
+        namespace = namespace_for namespace
+      end
+
       deleted_prop = get_property namespace, prop
       Exempi.xmp_delete_property @xmp_ptr, namespace, prop
       @namespaces[namespace] -= 1
@@ -214,9 +218,9 @@ module Fasttrack
     # Iterates over all properties in a specified namespace.
     # The namespace parameter can be the URI of the namespace to use,
     # or a symbol representing the namespace prefix, e.g. :exif.
-    # The recognized namespace prefixes are based on the constants in
-    # Exempi::Namespaces, and are generated at runtime in
-    # Fasttrack::NAMESPACES.
+    # The recognized namespace prefixes are based on a set of common
+    # namespace prefixes (generated at runtime in Fasttrack::NAMESPACES)
+    # as well as the local namespaces currently in use.
     # @param [String, Symbol] ns namespace to iterate over
     # @param [Array<Symbol>] opts a set of options to restrict the
     #   iteration; see #each_with_options for supported options
@@ -236,6 +240,23 @@ module Fasttrack
     end
 
     private
+
+    # Attempts to find the namespace URI given a symbol representation.
+    # Searches public namespace table first, then any local namespaces
+    # in use.
+    # @param [Symbol]
+    # @return [String, nil]
+    def namespace_for sym
+      # first check the common namespace table
+      ns = Fasttrack::NAMESPACES[sym]
+      return ns if ns
+
+      # if that didn't work, check the local namespace table; there may
+      # be a custom namespace in use
+      @namespaces.keys.find do |ns|
+        ns =~ %r[http.?://.+/#{sym}/\d+\.\d+]
+      end
+    end
 
     # Creates a new iterator based on the options specified in the
     # @iterator_opts ivar, or an options hash if specified.
@@ -266,7 +287,7 @@ module Fasttrack
       # Select the namespace; lookup symbol if appropriate, otherwise
       # use string or nil
       if opts[:namespace].is_a? Symbol
-        ns = Fasttrack::NAMESPACES[opts[:namespace]]
+        ns = namespace_for opts[:namespace]
       else
         ns = opts[:namespace]
       end
