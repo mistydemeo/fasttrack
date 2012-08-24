@@ -227,7 +227,7 @@ module Fasttrack
     # @yieldparam (see #iterate_for)
     # @return [Enumerator] if no block is given
     def each_in_namespace ns, opts=[], &block
-      return enum_for(:each_with_namespace, ns) unless block_given?
+      return enum_for(:each_in_namespace, ns) unless block_given?
 
       opts = {:namespace => ns}
       iterate_for(opts) do |returned|
