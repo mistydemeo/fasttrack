@@ -6,7 +6,12 @@ require 'ffi'
 
 module Fasttrack
   class XMP
+    # The Exempi C pointer for this object. You normally shouldn't need
+    # to access this, but it is exposed so that unwrapped Exempi
+    # functions can be called on Fasttrack-tracked objects.
+    # @return [FFI::Pointer]
     attr_accessor :xmp_ptr
+
     include Enumerable
 
     # Creates a new XMP object.

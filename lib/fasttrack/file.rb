@@ -8,7 +8,27 @@ require 'pathname'
 
 module Fasttrack
   class File
-    attr_reader :xmp, :path, :file_ptr
+    # The Exempi C pointer for this object. You normally shouldn't need
+    # to access this, but it is exposed so that unwrapped Exempi
+    # functions can be called on Fasttrack-tracked objects.
+    # @return [FFI::Pointer]
+    attr_reader :file_ptr
+
+    # The Fasttrack::XMP object associated with this file. You can
+    # replace it with another Fasttrack::XMP object.
+    # @example Replace an object's XMP with the XMP from another file
+    #   file1.xmp = file2.xmp
+    #   file1.save!
+    # @example Create a new XMP document and save it into a file
+    #   newxmp = Fasttrack::XMP.new
+    #   newxmp['tiff:Make'] = 'Sony'
+    #   file.xmp = newxmp
+    #   file.save!
+    # @return [Fasttrack::XMP]
+    attr_reader :xmp
+
+    # @return [Pathname]
+    attr_reader :path
 
     # Instantiates a new Fasttrack::File object, which is a
     # representation of a file on disk and its associated XMP metadata.
