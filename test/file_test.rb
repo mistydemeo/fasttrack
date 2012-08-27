@@ -61,6 +61,20 @@ describe Fasttrack::File do
     file2.save!
     file2.xmp.to_s.wont_be_same_as file2_orig
   end
+
+  it "should be able to copy manually-created XMP into a file" do
+    FileUtils.copy File.expand_path(@test_image), "temp.jpg"
+    file = Fasttrack::File.new "temp.jpg", "w"
+
+    new_xmp = Exempi.xmp_new_empty
+    Exempi.xmp_set_property new_xmp, Fasttrack::NAMESPACES[:tiff],
+      'tiff:Make', 'Sony', nil
+
+    old_xmp = file.xmp.to_s
+    file.xmp = new_xmp
+    file.save!
+    file.xmp.to_s.wont_be_same_as old_xmp
+  end
   
   it "should raise when trying to write xmp into a read-only file" do
     file1 = Fasttrack::File.new @test_data

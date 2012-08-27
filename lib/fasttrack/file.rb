@@ -24,6 +24,11 @@ module Fasttrack
     #   newxmp['tiff:Make'] = 'Sony'
     #   file.xmp = newxmp
     #   file.save!
+    # @example Create a new XMP document manually, then add it to a File object
+    #   ptr = Exempi.xmp_new_empty
+    #   Exempi.xmp_set_property Fasttrack::NAMESPACES[:tiff],
+    #     'tiff:Make', 'Sony', nil
+    #   file.xmp = ptr
     # @return [Fasttrack::XMP]
     attr_reader :xmp
 
@@ -69,14 +74,13 @@ module Fasttrack
 
     # Replaces the file's currently associated XMP object. The new XMP
     # will not be written to disk until #save! or #close! is called.
-    # @param [Fasttrack::XMP] xmp XMP object to copy. Must be a
-    #   Fasttrack::XMP object.
-    # @return [Fasttrack::XMP] the copied object.
+    # @param [Fasttrack::XMP, FFI::Pointer] xmp XMP object to copy. Must
+    #   be a Fasttrack::XMP object or an XMP pointer.
+    # @return [Fasttrack::XMP, FFI::Pointer] the copied object.
     # @raise [Fasttrack::WriteError] if the file can't be written to
-    # @raise [TypeError] if the file being assigned isn't an XMP object
     def xmp= new_xmp
-      if not new_xmp.is_a? Fasttrack::XMP
-        raise TypeError, "#{new_xmp.class} is not a Fasttrack::XMP"
+      if new_xmp.is_a? FFI::Pointer
+        new_xmp = Fasttrack::XMP.new new_xmp
       end
       if not can_put_xmp? new_xmp
         message = "Unable to write XMP"
