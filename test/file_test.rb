@@ -83,6 +83,13 @@ describe Fasttrack::File do
     lambda {file2.xmp = file1.xmp}.must_raise Fasttrack::WriteError
   end
 
+  it "should raise when trying to copy non-XMP data into a file" do
+    FileUtils.copy File.expand_path(@test_image), "temp.jpg"
+    file = Fasttrack::File.new "temp.jpg", "w"
+
+    lambda {file.xmp = 'xmp'}.must_raise TypeError
+  end
+
   after do
     FileUtils.remove_entry_secure @tmpdir
   end
