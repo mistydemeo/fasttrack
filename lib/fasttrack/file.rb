@@ -97,7 +97,7 @@ module Fasttrack
     # closes and then reopens the file so it can continue to be used.
     # This always uses Exempi's "safe close", which writes into a
     # temporary file and swap in case of unexpected termination.
-    # @return [true, false] true if successful
+    # @return [Boolean] true if successful
     # @raise [Fasttrack::WriteError] if the file is read-only or closed
     def save!
       if @read_mode == "r"
@@ -115,7 +115,7 @@ module Fasttrack
     # While this will not save changes made to the current
     # XMP object, it still has the potential to make changes to
     # the file being closed.
-    # @return [true, false] true if successful
+    # @return [Boolean] true if successful
     # @raise [Fasttrack::WriteError] if the file is already closed
     def close!
       raise Fasttrack::WriteError, "file is already closed" unless @open
