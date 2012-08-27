@@ -20,7 +20,7 @@ describe Fasttrack::File do
   it "should raise when created with a file that doesn't exist" do
     lambda do
       Fasttrack::File.new "no_file_here"
-    end.must_raise Fasttrack::FileNotFoundError
+    end.must_raise Errno::ENOENT
   end
 
   it "should be able to report whether XMP can be written to a file" do

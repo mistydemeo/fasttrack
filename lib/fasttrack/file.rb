@@ -47,7 +47,7 @@ module Fasttrack
     def initialize path, mode="r"
       @path = Pathname.new(path).expand_path
       if not @path.exist?
-        raise Fasttrack::FileNotFoundError, "#{@path} does not exist"
+        raise Errno::ENOENT, "#{@path} does not exist"
       end
 
       @file_ptr = Exempi.xmp_files_new
