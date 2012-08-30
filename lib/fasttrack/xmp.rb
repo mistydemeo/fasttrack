@@ -36,6 +36,16 @@ module Fasttrack
       end
     end
 
+    # Creates a new XMP object from an XML string.
+    # @param [String] xml a string containing valid XMP
+    # @return [Fasttrack::XMP] a new XMP object
+    def self.parse xml
+      ptr = Exempi.xmp_new_empty
+      Exempi.xmp_parse ptr, xml, xml.bytesize
+
+      Fasttrack::XMP.new ptr
+    end
+
     # This ensures that the clone is created with a new XMP pointer.
     def initialize_copy orig
       super

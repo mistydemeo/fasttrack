@@ -112,4 +112,11 @@ describe Fasttrack::XMP do
     xmp2 = xmp.dup
     xmp.xmp_ptr.wont_equal xmp2.xmp_ptr
   end
+
+  it "should be able to create XMP objects from XML strings" do
+    xml_string = File.read File.expand_path(@test_data)
+    xmp = Fasttrack::XMP.parse xml_string
+    xmp.must_be_kind_of Fasttrack::XMP
+    xmp['tiff:Make'].must_equal 'Sony'
+  end
 end
