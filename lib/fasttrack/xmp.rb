@@ -192,6 +192,10 @@ module Fasttrack
       "#<#{self.class}:#{object_id} #{ivars * ", "}>"
     end
 
+    def == other_xmp
+      to_s == other_xmp.to_s
+    end
+
     # @yieldparam (see #iterate_for)
     def each &block
       return to_enum unless block_given?

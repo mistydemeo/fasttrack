@@ -118,5 +118,8 @@ describe Fasttrack::XMP do
     xmp = Fasttrack::XMP.parse xml_string
     xmp.must_be_kind_of Fasttrack::XMP
     xmp['tiff:Make'].must_equal 'Sony'
+
+    xmp_from_file = Fasttrack::File.new(@test_data).xmp
+    xmp_from_file.must_equal xmp
   end
 end
