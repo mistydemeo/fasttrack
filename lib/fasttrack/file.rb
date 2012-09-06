@@ -129,15 +129,15 @@ module Fasttrack
       end
     end
 
-    private
-
-    # This method is considered plumbing and should not be directly
-    # called by users of this class.
+    # Reopens a closed Fasttrack::File object.
     #
     # @param [String] mode file mode
     # @raise [Exempi::ExempiError] if Exempi reports an error while
     #   attempting to open the file
-    def open mode=nil
+    # @raise [Fasttrack::OpenError] if an opened file is reopened
+    def open mode=@read_mode
+      raise Fasttrack::OpenError, "file is already open" if @open
+
       case mode
       when 'r'
         open_option = :XMP_OPEN_READ
@@ -157,6 +157,8 @@ module Fasttrack
 
       @open
     end
+
+    private
 
     # Fetches XMP data from the file.
     # This is automatically done when a file is opened.

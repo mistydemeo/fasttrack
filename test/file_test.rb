@@ -42,6 +42,16 @@ describe Fasttrack::File do
     file2.close!.must_be_same_as true
   end
 
+  it "should be able to reopen a closed file" do
+    FileUtils.copy File.expand_path(@test_image), "temp.jpg"
+    file1 = Fasttrack::File.new "temp.jpg", "w"
+    file1.close!
+    file2 = Fasttrack::File.new @test_data
+    file1.open
+    file1.xmp = file2.xmp
+    file1.save!.must_be_same_as true
+  end
+
   it "should raise when saving changes to a closed file" do
     lambda do
       file1 = Fasttrack::File.new @test_data
@@ -49,6 +59,13 @@ describe Fasttrack::File do
       file2 = Fasttrack::File.new @test_image
       file1.xmp = file2.xmp      
     end.must_raise Fasttrack::WriteError
+  end
+
+  it "should raise when reopening an open file" do
+    lambda do
+      file1 = Fasttrack::File.new @test_data
+      file1.open
+    end.must_raise Fasttrack::OpenError
   end
 
   it "should be able to copy XMP file to file" do
