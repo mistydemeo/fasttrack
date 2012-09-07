@@ -335,7 +335,7 @@ module Fasttrack
         end
 
         ary << Exempi.parse_bitmask(returned_prop_opts.read_uint32,
-          Exempi::XMP_PROPS_BITS)
+          Exempi::XMP_PROPS_BITS, true)
 
         yield ary
       end
