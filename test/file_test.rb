@@ -26,11 +26,11 @@ describe Fasttrack::File do
   it "should be able to report whether XMP can be written to a file" do
     # If the file is opened read-only the answer should be false
     file = Fasttrack::File.new @test_data, "r"
-    file.can_put_xmp?.wont_be_same_as true
+    refute file.can_put_xmp?
 
     # also test when file is opened for writing
     file = Fasttrack::File.new @test_image, "w"
-    file.can_put_xmp?.must_be_same_as true
+    assert file.can_put_xmp?
   end
 
   it "should be able to save changes to a file" do
@@ -38,8 +38,8 @@ describe Fasttrack::File do
     FileUtils.copy File.expand_path(@test_image), "temp.jpg"
     file2 = Fasttrack::File.new "temp.jpg", "w"
     file2.xmp = file1.xmp
-    file2.save!.must_be_same_as true
-    file2.close!.must_be_same_as true
+    assert file2.save!
+    assert file2.close!
   end
 
   it "should be able to reopen a closed file" do
@@ -49,7 +49,7 @@ describe Fasttrack::File do
     file2 = Fasttrack::File.new @test_data
     file1.open
     file1.xmp = file2.xmp
-    file1.save!.must_be_same_as true
+    assert file1.save!
   end
 
   it "should raise when saving changes to a closed file" do
