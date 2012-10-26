@@ -14,13 +14,26 @@ module Fasttrack
 
     include Enumerable
 
+    def self.finalize pointer
+      proc { Exempi.xmp_free pointer }
+    end
+
+    def self.finalize_iterator pointer
+      proc { Exempi.xmp_iterator_free pointer }
+    end
+
     # Creates a new XMP object.
-    # If a pointer to an XMP chunk is provided, it will be used;
+    # If a pointer to an XMP chunk is provided, a copy of it will be used;
     # otherwise, a new empty XMP chunk will be created.
+    #
+    # Note that if you create an XMP object from a pre-existing pointer,
+    # you'll need to remember to free the original pointer with
+    # Exempi.xmp_free(). Garbage collection will only free the
+    # Fasttrack::XMP version for you.
     # @param [FFI::Pointer, nil] xmp_ptr XMP pointer to use, or nil
     def initialize xmp_ptr=nil
       if xmp_ptr and xmp_ptr.is_a? FFI::Pointer
-        @xmp_ptr = xmp_ptr
+        @xmp_ptr = Exempi.xmp_copy xmp_ptr
       else
         @xmp_ptr = Exempi.xmp_new_empty
       end
@@ -34,6 +47,21 @@ module Fasttrack
       @namespaces = ns_ary.uniq.each_with_object(Hash.new(0)) do |ns, hsh|
         hsh[ns] = ns_ary.count(ns) - 1 # one empty item returned per ns
       end
+
+      ObjectSpace.define_finalizer(self, self.class.finalize(@xmp_ptr))
+    end
+
+    # Creates a new XMP object based on the metadata in a file
+    # represented by an Exempi file pointer. The file must already have
+    # been opened using xmp_files_open()
+    # @param [FFI::Pointer] file_ptr an Exempi pointer
+    # @return [Fasttrack::XMP] a new XMP object
+    def self.from_file_pointer file_ptr
+      xmp_ptr = Exempi.xmp_files_get_new_xmp file_ptr
+      xmp = Fasttrack::XMP.new xmp_ptr
+      Exempi.xmp_free xmp_ptr
+
+      xmp
     end
 
     # Creates a new XMP object from an XML string.
@@ -50,6 +78,11 @@ module Fasttrack
     def initialize_copy orig
       super
       @xmp_ptr = Exempi.xmp_copy @xmp_ptr
+
+      # if we don't do this, the new clone's finalizer will reference
+      # the pointer from the original object - not the clone's
+      ObjectSpace.undefine_finalizer self
+      ObjectSpace.define_finalizer(self, self.class.finalize(@xmp_ptr))
     end
 
     # Return an object from the global namespace.
@@ -292,7 +325,10 @@ module Fasttrack
       # property support is currently disabled
       prop = nil
       opts = params[:options]
-      Exempi.xmp_iterator_new @xmp_ptr, ns, prop, opts
+      iterator = Exempi.xmp_iterator_new @xmp_ptr, ns, prop, opts
+      ObjectSpace.define_finalizer(iterator, self.class.finalize_iterator(iterator))
+
+      iterator
     end
 
     # This method is the plumbing which is used by the various

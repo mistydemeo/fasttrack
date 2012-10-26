@@ -35,6 +35,10 @@ module Fasttrack
     # @return [Pathname]
     attr_reader :path
 
+    def self.finalize pointer
+      proc { Exempi.xmp_files_free pointer }
+    end
+
     # Instantiates a new Fasttrack::File object, which is a
     # representation of a file on disk and its associated XMP metadata.
     # To create a new file on disk you should use Fasttrack::XMP#to_s
@@ -53,6 +57,8 @@ module Fasttrack
       @file_ptr = Exempi.xmp_files_new
       @read_mode = mode
       open @read_mode
+
+      ObjectSpace.define_finalizer(self, self.class.finalize(@file_ptr))
     end
 
     # Checks to see whether XMP can be written to the current file.
@@ -152,19 +158,10 @@ module Fasttrack
       if not @open
         Fasttrack.handle_exempi_failure
       else
-        @xmp = get_xmp
+        @xmp = Fasttrack::XMP.from_file_pointer @file_ptr
       end
 
       @open
-    end
-
-    private
-
-    # Fetches XMP data from the file.
-    # This is automatically done when a file is opened.
-    # @return [Fasttrack::XMP] A new Fasttrack::XMP object
-    def get_xmp
-      Fasttrack::XMP.new Exempi.xmp_files_get_new_xmp @file_ptr
     end
 
   end

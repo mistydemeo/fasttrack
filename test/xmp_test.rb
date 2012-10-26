@@ -122,4 +122,14 @@ describe Fasttrack::XMP do
     xmp_from_file = Fasttrack::File.new(@test_data).xmp
     xmp_from_file.must_equal xmp
   end
+
+  it "should be able to create XMP objects from a file pointer" do
+    file = Exempi.xmp_files_new
+    Exempi.xmp_files_open file, File.expand_path(@test_data), :XMP_OPEN_READ
+
+    xmp = Fasttrack::XMP.from_file_pointer file
+    xmp['tiff:Make'].must_equal 'Sony'
+
+    Exempi.xmp_files_free file
+  end
 end
