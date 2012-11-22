@@ -6,6 +6,11 @@ describe Fasttrack::XMP do
     @test_data = File.join(__FILE__,"..","data","avchd.xmp")
   end
 
+  it "should be able to create an empty XMP packet" do
+    xmp = Fasttrack::XMP.new
+    xmp.namespaces.must_be_empty
+  end
+
   it "should return the correct namespaces" do
     file = Fasttrack::File.new @test_data
     file.xmp.namespaces.must_equal [Fasttrack::NAMESPACES[:exif],
