@@ -295,20 +295,10 @@ module Fasttrack
     private
 
     # Attempts to find the namespace URI given a symbol representation.
-    # Searches public namespace table first, then any local namespaces
-    # in use.
     # @param [Symbol]
     # @return [String, nil]
     def namespace_for sym
-      # first check the common namespace table
-      ns = Fasttrack::NAMESPACES[sym]
-      return ns if ns
-
-      # if that didn't work, check the local namespace table; there may
-      # be a custom namespace in use
-      @namespaces.keys.find do |ns|
-        ns =~ %r[http.?://.+/#{sym}/\d+\.\d+]
-      end
+      Fasttrack::NAMESPACES[sym]
     end
 
     # Creates a new iterator based on the options specified in the
