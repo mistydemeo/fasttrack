@@ -208,7 +208,7 @@ module Fasttrack
 
     # Serializes the XMP object to an XML string.
     # @return [String]
-    def to_s
+    def serialize
       xmp_str = Exempi.xmp_string_new
       Exempi.xmp_serialize @xmp_ptr, xmp_str, 0, 0
       string = Exempi.xmp_string_cstr xmp_str
@@ -217,16 +217,8 @@ module Fasttrack
       string
     end
 
-    # Defined to ensure that irb and other environments which depend on
-    # #inspect get something sane, rather than the output of #to_s.
-    # @return [String]
-    def inspect
-      ivars = instance_variables.map {|var| "#{var}=#{instance_variable_get var}"}
-      "#<#{self.class}:#{object_id} #{ivars * ", "}>"
-    end
-
     def == other_xmp
-      to_s == other_xmp.to_s
+      serialize == other_xmp.serialize
     end
 
     # @yieldparam (see #iterate_for)

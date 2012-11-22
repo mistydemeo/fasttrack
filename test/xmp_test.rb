@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require 'fasttrack'
 
+require 'nokogiri'
 describe Fasttrack::XMP do
   before do
     @test_data = File.join(__FILE__,"..","data","avchd.xmp")
@@ -139,6 +140,16 @@ describe Fasttrack::XMP do
 
     xmp_from_file = Fasttrack::File.new(@test_data).xmp
     xmp_from_file.must_equal xmp
+  end
+
+  it "should be able to serialize XMP to a string" do
+    xmp = Fasttrack::XMP.new
+    xmp['tiff:Make'] = 'Sony'
+    xml = Nokogiri::XML.parse xmp.serialize
+    xml.xpath("/x:xmpmeta/rdf:RDF/rdf:Description/tiff:Make",
+      'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+      'tiff' => 'http://ns.adobe.com/tiff/1.0/',
+      'x' => 'adobe:ns:meta/').text.must_equal 'Sony'
   end
 
   it "should be able to create XMP objects from a file pointer" do
