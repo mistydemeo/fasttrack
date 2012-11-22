@@ -129,7 +129,6 @@ module Fasttrack
       @open = !Exempi.xmp_files_close(@file_ptr, :XMP_CLOSE_SAFEUPDATE)
       if @open # did not successfully close
         Fasttrack.handle_exempi_failure
-        false
       else
         true
       end

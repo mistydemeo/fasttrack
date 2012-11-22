@@ -23,5 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'exempi', '>= 0.1'
 
   gem.add_development_dependency 'rake', '>= 0.9.2.2'
+  gem.add_development_dependency 'mocha', '>= 0.13.0'
   gem.add_development_dependency 'nokogiri', '>= 1.5.5'
 end

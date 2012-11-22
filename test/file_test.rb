@@ -1,6 +1,7 @@
-require 'minitest/autorun'
 require 'fasttrack'
 
+require 'mocha/setup'
+require 'minitest/autorun'
 require 'fileutils'
 require 'tmpdir'
 
@@ -100,11 +101,26 @@ describe Fasttrack::File do
     lambda {file2.xmp = file1.xmp}.must_raise Fasttrack::WriteError
   end
 
+  it "should raise when trying to save changes into a read-only file" do
+    file = Fasttrack::File.new @test_data, 'r'
+    lambda {file.save!}.must_raise Fasttrack::WriteError
+  end
+
   it "should raise when trying to copy non-XMP data into a file" do
     FileUtils.copy File.expand_path(@test_image), "temp.jpg"
     file = Fasttrack::File.new "temp.jpg", "w"
 
     lambda {file.xmp = 'xmp'}.must_raise TypeError
+  end
+
+  it "should raise if Exempi fails to close a file" do
+    Exempi.stubs(:xmp_files_close).returns(false)
+    lambda {Fasttrack::File.new(@test_data).close!}.must_raise Exempi::ExempiError
+  end
+
+  it "should raise if Exempi fails to open a file" do
+    Exempi.stubs(:xmp_files_open).returns(false)
+    lambda {Fasttrack::File.new(@test_data)}.must_raise Exempi::ExempiError
   end
 
   after do

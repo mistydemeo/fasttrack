@@ -1,7 +1,9 @@
-require 'minitest/autorun'
 require 'fasttrack'
 
+require 'mocha/setup'
+require 'minitest/autorun'
 require 'nokogiri'
+
 describe Fasttrack::XMP do
   before do
     @test_data = File.join(__FILE__,"..","data","avchd.xmp")
@@ -160,5 +162,11 @@ describe Fasttrack::XMP do
     xmp['tiff:Make'].must_equal 'Sony'
 
     Exempi.xmp_files_free file
+  end
+
+  it "should raise if Exempi fails to set properties" do
+    Exempi.stubs(:xmp_set_property).returns(false)
+
+    lambda {Fasttrack::XMP.new.set(:exif, 'Make', 'Foo')}.must_raise Exempi::ExempiError
   end
 end
