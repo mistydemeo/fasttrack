@@ -6,8 +6,8 @@ require 'tmpdir'
 
 describe Fasttrack::File do
   before do
-    @test_data  = File.join(__FILE__,"..","data","avchd.xmp")
-    @test_image = File.join(__FILE__,"..","data","image.jpg")
+    @test_data  = File.expand_path File.join(__FILE__,"..","data","avchd.xmp")
+    @test_image = File.expand_path File.join(__FILE__,"..","data","image.jpg")
 
     @tmpdir = Dir.mktmpdir
     Dir.chdir @tmpdir
