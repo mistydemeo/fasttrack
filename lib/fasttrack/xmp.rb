@@ -28,7 +28,7 @@ module Fasttrack
     #
     # Note that if you create an XMP object from a pre-existing pointer,
     # you'll need to remember to free the original pointer with
-    # Exempi.xmp_free(). Garbage collection will only free the
+    # xmp_free(). Garbage collection will only free the
     # Fasttrack::XMP version for you.
     # @param [FFI::Pointer, nil] xmp_ptr XMP pointer to use, or nil
     def initialize xmp_ptr=nil
@@ -68,10 +68,11 @@ module Fasttrack
     # @param [String] xml a string containing valid XMP
     # @return [Fasttrack::XMP] a new XMP object
     def self.parse xml
-      ptr = Exempi.xmp_new_empty
-      Exempi.xmp_parse ptr, xml, xml.bytesize
+      ptr = Exempi.xmp_new xml, xml.bytesize
+      xmp = Fasttrack::XMP.new ptr
+      Exempi.xmp_free ptr
 
-      Fasttrack::XMP.new ptr
+      xmp
     end
 
     # This ensures that the clone is created with a new XMP pointer.
