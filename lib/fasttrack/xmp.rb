@@ -194,7 +194,7 @@ module Fasttrack
 
       deleted_prop = get_property namespace, prop
       Exempi.xmp_delete_property @xmp_ptr, namespace, prop
-      @namespaces[namespace] -= 1
+      @namespaces[namespace] -= 1 unless deleted_prop.nil?
 
       deleted_prop
     end
