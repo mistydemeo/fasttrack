@@ -115,7 +115,6 @@ module Fasttrack
       end
 
       Exempi.xmp_string_free prop_str
-      prop_str = nil
 
       result
     end
