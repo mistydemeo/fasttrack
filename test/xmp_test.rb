@@ -55,6 +55,19 @@ describe Fasttrack::XMP do
     file.xmp['tiff:Make'].must_be_nil
   end
 
+  it "should return nil when deleting a property which doesn't exist" do
+    xmp = Fasttrack::XMP.new
+    xmp.delete(:exif, 'foo').must_be_nil
+  end
+
+  it "should not decrement the namespace count when deleting a nonextant property" do
+    file = Fasttrack::File.new @test_data
+    file.xmp.instance_variable_get(:@namespaces)["http://ns.adobe.com/exif/1.0/"].must_equal 7
+
+    file.xmp.delete(:exif, 'foo')
+    file.xmp.instance_variable_get(:@namespaces)["http://ns.adobe.com/exif/1.0/"].must_equal 7
+  end
+
   it "should be able to iterate over properties" do
     file = Fasttrack::File.new @test_data
     file.xmp.each.must_be_kind_of Enumerator
