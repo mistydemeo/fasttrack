@@ -49,6 +49,7 @@ module Fasttrack
     # @raise [Fasttrack::FileFormatError] if the file can't have XMP
     #   metadata
     def initialize path, mode="r"
+      @open = false
       @path = Pathname.new(path).expand_path
       if not @path.exist?
         raise Errno::ENOENT, "#{@path} does not exist"
@@ -155,6 +156,7 @@ module Fasttrack
       @open = Exempi.xmp_files_open @file_ptr, @path.to_s, open_option
 
       if not @open
+        Exempi.xmp_files_free(@file_ptr)
         Fasttrack.handle_exempi_failure
       else
         @xmp = Fasttrack::XMP.from_file_pointer @file_ptr
@@ -162,6 +164,5 @@ module Fasttrack
 
       @open
     end
-
   end
 end
