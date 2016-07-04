@@ -7,12 +7,15 @@ describe Fasttrack::File do
   end
 
   it 'should not leak filehandles' do
-    out, _ = Open3.capture2e("lsof")
-    assert(!out.include?('test.rtf'))
+    exempi_mock = MiniTest::Mock.new
+    exempi_mock.expect(:xmp_files_open, false, [])
+    exempi_mock.expect(:xmp_files_free, true, [])
+    Exempi.stub(:xmp_files_open, false) { exempi_mock.xmp_files_open }
+    Exempi.stub(:xmp_files_free, true) { exempi_mock.xmp_files_free }
+
     assert_raises Exempi::ExempiError do
       Fasttrack::File.new(@test_file)
     end
-    out, _ = Open3.capture2e("lsof")
-    assert(!out.include?('test.rtf'))
+    exempi_mock.verify
   end
 end
