@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Fasttrack::VERSION
 
-  gem.add_dependency 'exempi', '>= 0.1'
+  gem.add_dependency 'exempi', '>= 0.2'
 
   gem.add_development_dependency 'rake', '>= 0.9.2.2'
   gem.add_development_dependency 'mocha', '>= 0.13.0'
